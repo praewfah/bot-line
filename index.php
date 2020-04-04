@@ -39,7 +39,7 @@ $app->post('/', function ($request, $response)
         return $response->withStatus(400, 'Invalid signature');
     }
       
-    $key_word = ["หวย", "เลข", "ดวง", "โชค"];
+    $key_word = ["หวย", "เลข", "ดวง", "โชค", "ขอหวย"];
     $say_halo = ["สวัสดี", "ดีจ้า", "Hello", "Hi","Halo", "ว่าไง", "Hey"];
     $lotto = ["งวด", "ที่แล้ว", "ออกอะไร"];
     
@@ -57,22 +57,47 @@ $app->post('/', function ($request, $response)
             $result = $bot->replyMessage($event['replyToken'], $textMessageBuilder);
             return $result->getHTTPStatus() . ' ' . $result->getRawBody();
 
-        }
-        if(in_array(strtolower($userMessage), $lotto))
-        {
+        } elseif (in_array(strtolower($userMessage), $lotto)) {
             $message = "Google เลยจ้า";
             $textMessageBuilder = new \LINE\LINEBot\MessageBuilder\TextMessageBuilder($message);
             $result = $bot->replyMessage($event['replyToken'], $textMessageBuilder);
             return $result->getHTTPStatus() . ' ' . $result->getRawBody();
 
-        }
-        if(in_array(strtolower($userMessage), $say_halo))
-        {
+        } elseif(in_array(strtolower($userMessage), $say_halo)) {
             $message = "สวัสดีจ้า ขอหวยเจ้าแม่มาได้เลย";
             $textMessageBuilder = new \LINE\LINEBot\MessageBuilder\TextMessageBuilder($message);
             $result = $bot->replyMessage($event['replyToken'], $textMessageBuilder);
             return $result->getHTTPStatus() . ' ' . $result->getRawBody();
 
+        } else {
+            
+            sleep(10);
+            
+            define('LINE_API',"https://notify-api.line.me/api/notify");
+
+            $token = $_ENV['NOTIFICATION_TOKEN'];
+            $str = "User รอเกิน 10 วินาทีแล้ว กรุณาตรวจสอบ"; 
+
+            $res = notify_message($str,$token);
+            print_r($res);
+            
+            function notify_message($message,$token){
+                $queryData = array('message' => $message);
+                $queryData = http_build_query($queryData,'','&');
+                $headerOptions = array( 
+                        'http'=>array(
+                           'method'=>'POST',
+                           'header'=> "Content-Type: application/x-www-form-urlencoded\r\n"
+                                     ."Authorization: Bearer ".$token."\r\n"
+                                     ."Content-Length: ".strlen($queryData)."\r\n",
+                           'content' => $queryData
+                     ),
+             );
+             $context = stream_context_create($headerOptions);
+             $result = file_get_contents(LINE_API,FALSE,$context);
+             $res = json_decode($result);
+             return $res;
+            }
         }
     }
 });
