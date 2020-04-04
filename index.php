@@ -16,6 +16,7 @@ $app = new Slim\App($configs);
 
 /* ROUTES */
 $app->get('/', function ($request, $response) {
+    echo rand(000000, 999999);
     return "ok!";
 });
 
@@ -37,7 +38,11 @@ $app->post('/', function ($request, $response)
     if($_ENV['PASS_SIGNATURE'] == false && ! SignatureValidator::validateSignature($body, $_ENV['CHANNEL_SECRET'], $signature)){
         return $response->withStatus(400, 'Invalid signature');
     }
-
+      
+    $key_word = ["หวย", "เลข", "ดวง", "โชค"];
+    $say_halo = ["สวัสดี", "ดีจ้า", "Hello", "Hi","Halo", "ว่าไง", "Hey"];
+    $lotto = ["งวด", "ที่แล้ว", "ออกอะไร"];
+    
     // init bot
     $httpClient = new \LINE\LINEBot\HTTPClient\CurlHTTPClient($_ENV['CHANNEL_ACCESS_TOKEN']);
     $bot = new \LINE\LINEBot($httpClient, ['channelSecret' => $_ENV['CHANNEL_SECRET']]);
@@ -45,9 +50,25 @@ $app->post('/', function ($request, $response)
     foreach ($data['events'] as $event)
     {
         $userMessage = $event['message']['text'];
-        if(strtolower($userMessage) == 'halo')
+        if(in_array(strtolower($userMessage), $key_word))
         {
-            $message = "Halo juga";
+            $message = rand(000000, 999999);
+            $textMessageBuilder = new \LINE\LINEBot\MessageBuilder\TextMessageBuilder($message);
+            $result = $bot->replyMessage($event['replyToken'], $textMessageBuilder);
+            return $result->getHTTPStatus() . ' ' . $result->getRawBody();
+
+        }
+        if(in_array(strtolower($userMessage), $lotto))
+        {
+            $message = "Google เลยจ้า";
+            $textMessageBuilder = new \LINE\LINEBot\MessageBuilder\TextMessageBuilder($message);
+            $result = $bot->replyMessage($event['replyToken'], $textMessageBuilder);
+            return $result->getHTTPStatus() . ' ' . $result->getRawBody();
+
+        }
+        if(in_array(strtolower($userMessage), $say_halo))
+        {
+            $message = "สวัสดีจ้า ขอหวยเจ้าแม่มาได้เลย";
             $textMessageBuilder = new \LINE\LINEBot\MessageBuilder\TextMessageBuilder($message);
             $result = $bot->replyMessage($event['replyToken'], $textMessageBuilder);
             return $result->getHTTPStatus() . ' ' . $result->getRawBody();
