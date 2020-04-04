@@ -74,7 +74,7 @@ $app->post('/', function ($request, $response)
             
             define('LINE_API',"https://notify-api.line.me/api/notify");
             $token = $_ENV['NOTIFICATION_TOKEN'];
-            $str = "User รอเกิน 10 วินาทีแล้ว กรุณาตรวจสอบ [ข้อความจากลูกค้า '" .$userMessage. "']"; 
+            $str = "User รอเกิน 10 วินาทีแล้ว กรุณาตรวจสอบ. ข้อความจากลูกค้า \"" .$userMessage. "\""; 
 
             $queryData = array('message' => $str);
             $queryData = http_build_query($queryData,'','&');
