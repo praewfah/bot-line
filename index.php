@@ -15,9 +15,8 @@ $configs =  [
 $app = new Slim\App($configs);
 
 /* ROUTES */
-$app->get('/', function ($request, $response) {
-    echo rand(000000, 999999);
-    return "ok!";
+$app->get('/', function ($request, $response) {  
+    return "Chat bot : เลขมงคล <br> Welcome!";
 });
 
 $app->post('/', function ($request, $response)
@@ -39,9 +38,9 @@ $app->post('/', function ($request, $response)
         return $response->withStatus(400, 'Invalid signature');
     }
       
-    $key_word = ["หวย", "เลข", "ดวง", "โชค", "ขอหวย"];
+    $key_word = ["หวย", "เลข", "ดวง", "โชค", "ขอหวย", "เจ้าแม่ขอหวยหน่อย", "ขอเลขเด็ด"];
     $say_halo = ["สวัสดี", "ดีจ้า", "Hello", "Hi","Halo", "ว่าไง", "Hey"];
-    $lotto = ["งวด", "ที่แล้ว", "ออกอะไร"];
+    $lotto = ["งวด", "ที่แล้ว", "ออกอะไร", "หวยงวดที่แล้วออกอะไร"];
     
     // init bot
     $httpClient = new \LINE\LINEBot\HTTPClient\CurlHTTPClient($_ENV['CHANNEL_ACCESS_TOKEN']);
@@ -58,7 +57,7 @@ $app->post('/', function ($request, $response)
             return $result->getHTTPStatus() . ' ' . $result->getRawBody();
 
         } elseif (in_array(strtolower($userMessage), $lotto)) {
-            $message = "Google เลยจ้า";
+            $message = "เจ้าแม่ไม่รู้เลยจ้า :(";
             $textMessageBuilder = new \LINE\LINEBot\MessageBuilder\TextMessageBuilder($message);
             $result = $bot->replyMessage($event['replyToken'], $textMessageBuilder);
             return $result->getHTTPStatus() . ' ' . $result->getRawBody();
@@ -74,45 +73,27 @@ $app->post('/', function ($request, $response)
             sleep(10);
             
             define('LINE_API',"https://notify-api.line.me/api/notify");
-
             $token = $_ENV['NOTIFICATION_TOKEN'];
             $str = "User รอเกิน 10 วินาทีแล้ว กรุณาตรวจสอบ"; 
 
-            $res = notify_message($str,$token);
+            $queryData = array('message' => $str);
+            $queryData = http_build_query($queryData,'','&');
+            $headerOptions = array( 
+                    'http'=>array(
+                       'method'=>'POST',
+                       'header'=> "Content-Type: application/x-www-form-urlencoded\r\n"
+                                 ."Authorization: Bearer ".$token."\r\n"
+                                 ."Content-Length: ".strlen($queryData)."\r\n",
+                       'content' => $queryData
+                 ),
+            );
+            $context = stream_context_create($headerOptions);
+            $result = file_get_contents(LINE_API,FALSE,$context);
+            $res = json_decode($result);
             print_r($res);
-            
-            function notify_message($message,$token){
-                $queryData = array('message' => $message);
-                $queryData = http_build_query($queryData,'','&');
-                $headerOptions = array( 
-                        'http'=>array(
-                           'method'=>'POST',
-                           'header'=> "Content-Type: application/x-www-form-urlencoded\r\n"
-                                     ."Authorization: Bearer ".$token."\r\n"
-                                     ."Content-Length: ".strlen($queryData)."\r\n",
-                           'content' => $queryData
-                     ),
-             );
-             $context = stream_context_create($headerOptions);
-             $result = file_get_contents(LINE_API,FALSE,$context);
-             $res = json_decode($result);
-             return $res;
-            }
         }
     }
 });
 
-// $app->get('/push/{to}/{message}', function ($request, $response, $args)
-// {
-// 	$httpClient = new \LINE\LINEBot\HTTPClient\CurlHTTPClient($_ENV['CHANNEL_ACCESS_TOKEN']);
-// 	$bot = new \LINE\LINEBot($httpClient, ['channelSecret' => $_ENV['CHANNEL_SECRET']]);
-
-// 	$textMessageBuilder = new \LINE\LINEBot\MessageBuilder\TextMessageBuilder($args['message']);
-// 	$result = $bot->pushMessage($args['to'], $textMessageBuilder);
-
-// 	return $result->getHTTPStatus() . ' ' . $result->getRawBody();
-// });
-
 /* JUST RUN IT */
 $app->run();
-
