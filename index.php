@@ -71,6 +71,7 @@ $app->post('/', function ($request, $response)
         } else {
             if (!empty($userMessage)) {
                 $pass = false;
+                sleep(10);
             } 
         }
         
