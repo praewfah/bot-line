@@ -69,28 +69,29 @@ $app->post('/', function ($request, $response)
             return $result->getHTTPStatus() . ' ' . $result->getRawBody();
 
         } else {
-            
-            sleep(10);
-            
-            define('LINE_API',"https://notify-api.line.me/api/notify");
-            $token = $_ENV['NOTIFICATION_TOKEN'];
-            $str = "User รอเกิน 10 วินาทีแล้ว กรุณาตรวจสอบ. ข้อความจากลูกค้า \"" .$userMessage. "\""; 
+            if (!empty($userMessage)) {
+                sleep(10);
 
-            $queryData = array('message' => $str);
-            $queryData = http_build_query($queryData,'','&');
-            $headerOptions = array( 
-                    'http'=>array(
-                       'method'=>'POST',
-                       'header'=> "Content-Type: application/x-www-form-urlencoded\r\n"
-                                 ."Authorization: Bearer ".$token."\r\n"
-                                 ."Content-Length: ".strlen($queryData)."\r\n",
-                       'content' => $queryData
-                 ),
-            );
-            $context = stream_context_create($headerOptions);
-            $result = file_get_contents(LINE_API,FALSE,$context);
-            $res = json_decode($result);
-            print_r($res);
+                define('LINE_API',"https://notify-api.line.me/api/notify");
+                $token = $_ENV['NOTIFICATION_TOKEN'];
+                $str = "User รอเกิน 10 วินาทีแล้ว กรุณาตรวจสอบ. ข้อความจากลูกค้า \"" .$userMessage. "\""; 
+
+                $queryData = array('message' => $str);
+                $queryData = http_build_query($queryData,'','&');
+                $headerOptions = array( 
+                        'http'=>array(
+                           'method'=>'POST',
+                           'header'=> "Content-Type: application/x-www-form-urlencoded\r\n"
+                                     ."Authorization: Bearer ".$token."\r\n"
+                                     ."Content-Length: ".strlen($queryData)."\r\n",
+                           'content' => $queryData
+                     ),
+                );
+                $context = stream_context_create($headerOptions);
+                $result = file_get_contents(LINE_API,FALSE,$context);
+                $res = json_decode($result);
+                print_r($res);
+            } 
         }
     }
 });
