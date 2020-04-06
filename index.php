@@ -66,7 +66,8 @@ $app->post('/', function ($request, $response)
             $message = rand(000000, 999999);
         } elseif (preg_match_all($pattern, $hi, $matches)){
             $message = "สวัสดีจ้า ขอหวยเจ้าแม่มาได้เลย";
-        } elseif (preg_match_all($pattern, $oh, $matches)){
+        } elseif (preg_match_all($pattern, $oh, $matches)){ 
+            sleep(15); // sample for the case which query more 15 minutes
             $message = "เจ้าแม่มึนตึ๊บ ^^!";
         } else {
             if (!empty($userMessage)) {
@@ -75,14 +76,16 @@ $app->post('/', function ($request, $response)
             } 
         }
         
-        if (time()-$start_time >= 10)
+        $time_usage = time()-$start_time;
+        
+        if ($time_usage >= 10)
             $pass = false;
         
         if (!$pass)
         {
             define('LINE_API',"https://notify-api.line.me/api/notify");
             $token = $_ENV['NOTIFICATION_TOKEN'];
-            $str = "User รอเกิน 10 วินาทีแล้ว กรุณาตรวจสอบ. ข้อความจากลูกค้า \"" .$userMessage. "\""; 
+            $str = "ใช้เวลาทั้งหมด " .$time_usage. " วินาที. ข้อความจากลูกค้า \"" .$userMessage. "\""; 
 
             $queryData = array('message' => $str);
             $queryData = http_build_query($queryData,'','&');
